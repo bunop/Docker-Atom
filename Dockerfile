@@ -35,6 +35,7 @@ RUN export uid=1000 gid=1000 && \
 USER developer
 ENV HOME /home/developer
 WORKDIR $HOME 
+
 # get my configfiles from github
 RUN mkdir .atom &&  \ 
     git clone https://github.com/andmos/dotfiles.git && \ 
