@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install -y \
 RUN curl -sL https://deb.nodesource.com/setup | bash -
 RUN apt-get install -y nodejs
 
+# Clean packages and histories
+RUN apt-get clean && rm -rf /var/lib/apt/lists/
+
 RUN git clone https://github.com/atom/atom /src
 WORKDIR /src
 RUN git fetch && git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
@@ -34,11 +37,11 @@ RUN export uid=1000 gid=1000 && \
 
 USER developer
 ENV HOME /home/developer
-WORKDIR $HOME 
+WORKDIR $HOME
 
 # get my configfiles from github
-RUN mkdir .atom &&  \ 
-    git clone https://github.com/andmos/dotfiles.git && \ 
+RUN mkdir .atom &&  \
+    git clone https://github.com/andmos/dotfiles.git && \
     cd dotfiles/atom; ./configureAtom
 
 
