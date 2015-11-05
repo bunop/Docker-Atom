@@ -15,12 +15,23 @@ FROM ubuntu:14.04
 
 MAINTAINER Paolo Cozzi <paolo.cozzi@ptp.it>
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     gdebi \
+    mono-runtime \
+    build-essential \
+    ca-certificates \
+    curl \
+    git \
+    libasound2 \
+    libgconf-2-4 \
+    libgnome-keyring-dev \
+    libgtk2.0-0 \
+    libnss3 \
+    libxtst6 \
  && apt-get clean
 
-# Download the last stable atom rmp package
+# Download the last stable atom deb package
 RUN wget https://github.com/atom/atom/releases/download/v1.1.0/atom-amd64.deb -O /root/atom-amd64.deb
 
 # install package with gdebi
@@ -32,12 +43,14 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/
 # set up user and permission
 RUN export uid=1000 gid=1000 && \
     mkdir -p /home/developer && \
+    mkdir -p /home/developer/.local/share/ && \
     echo "developer:x:${uid}:${gid}:Developer,,,:/home/developer:/bin/bash" >> /etc/passwd && \
     echo "developer:x:${uid}:" >> /etc/group && \
     echo "developer ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/developer && \
     chmod 0440 /etc/sudoers.d/developer && \
     chown ${uid}:${gid} -R /home/developer
 
+# change default user
 USER developer
 ENV HOME /home/developer
 WORKDIR $HOME
