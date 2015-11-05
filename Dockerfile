@@ -1,30 +1,33 @@
-#Based on work by Jessie Frazelle, https://github.com/jfrazelle/dockerfiles/blob/master/atom/Dockerfile
+
+#
+# VERSION 0.2
+# DOCKER-VERSION  1.7.1
+# AUTHOR:         Paolo Cozzi <paolo.cozzi@ptp.it>
+# DESCRIPTION:    An atom container to work with atom
+# TO_BUILD:       docker build --rm -t atom .
+# TO_RUN:         docker run -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$DISPLAY atom
+# TO_TAG:         docker tag atom:latest atom:0.2
+#
+
+# I think is better to download a buildeb package insted of compile atom from source
+# Starting from an image commonly used for build packages
 FROM ubuntu:14.04
-MAINTAINER Andreas Mosti <andreas.mosti@gmail.com>
+
+MAINTAINER Paolo Cozzi <paolo.cozzi@ptp.it>
 
 RUN apt-get update && apt-get install -y \
-    build-essential \
-    ca-certificates \
-    curl \
-    git \
-    libasound2 \
-    libgconf-2-4 \
-    libgnome-keyring-dev \
-    libgtk2.0-0 \
-    libnss3 \
-    libxtst6 \
-    --no-install-recommends
+    wget \
+    gdebi \
+ && apt-get clean
 
-RUN curl -sL https://deb.nodesource.com/setup | bash -
-RUN apt-get install -y nodejs
+# Download the last stable atom rmp package
+RUN wget https://github.com/atom/atom/releases/download/v1.1.0/atom-amd64.deb -O /root/atom-amd64.deb
 
-# Clean packages and histories
+# install package with gdebi
+RUN gdebi --non-interactive /root/atom-amd64.deb
+
+# final clean
 RUN apt-get clean && rm -rf /var/lib/apt/lists/
-
-RUN git clone https://github.com/atom/atom /src
-WORKDIR /src
-RUN git fetch && git checkout $(git describe --tags `git rev-list --tags --max-count=1`)
-RUN script/build && script/grunt install
 
 # set up user and permission
 RUN export uid=1000 gid=1000 && \
@@ -39,10 +42,4 @@ USER developer
 ENV HOME /home/developer
 WORKDIR $HOME
 
-# get my configfiles from github
-RUN mkdir .atom &&  \
-    git clone https://github.com/andmos/dotfiles.git && \
-    cd dotfiles/atom; ./configureAtom
-
-
-CMD /usr/local/bin/atom --foreground --log-file /var/log/atom.log && tail -f /var/log/atom.log
+CMD ["/usr/bin/atom", "--foreground"]
