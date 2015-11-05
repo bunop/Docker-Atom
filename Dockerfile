@@ -42,4 +42,9 @@ USER developer
 ENV HOME /home/developer
 WORKDIR $HOME
 
+# get andmos configfiles from github (the original author of this Dockerfile)
+RUN mkdir .atom &&  \
+    git clone https://github.com/andmos/dotfiles.git && \
+    cd dotfiles/atom; ./configureAtom
+
 CMD ["/usr/bin/atom", "--foreground"]
